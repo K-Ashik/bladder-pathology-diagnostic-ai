@@ -6,22 +6,31 @@ Optimized for Python 3.11+
 
 import tomllib
 from groq import Groq
+import streamlit as st
+import os
 
 class ClinicalReasoner:
     def __init__(self):
-        """Initialize Groq client with secrets from .toml"""
+        """Initialize Groq client with secrets from Streamlit Cloud"""
         
+        # Try to get API key from Streamlit secrets first (for Streamlit Cloud)
         try:
-            with open("secrets.toml", "rb") as f:
-                secrets = tomllib.load(f)
-            api_key = secrets["groq"]["api_key"]
-        except FileNotFoundError:
-            raise FileNotFoundError("❌ secrets.toml not found in project root")
-        except KeyError:
-            raise ValueError("❌ GROQ API key not found in secrets.toml")
+            api_key = st.secrets["groq"]["api_key"]
+        except (KeyError, FileNotFoundError):
+            # Fall back to environment variable (for local development)
+            api_key = os.getenv("GROQ_API_KEY")
+        
+        # If running locally, try to read from secrets.toml
+        if not api_key:
+            try:
+                with open("secrets.toml", "rb") as f:
+                    secrets = tomllib.load(f)
+                api_key = secrets["groq"]["api_key"]
+            except FileNotFoundError:
+                raise FileNotFoundError("❌ GROQ API key not found. Please set it in Streamlit secrets or secrets.toml")
         
         if not api_key or api_key == "your_api_key_here":
-            raise ValueError("❌ Please set your GROQ_API_KEY in secrets.toml")
+            raise ValueError("❌ Please set your GROQ_API_KEY in Streamlit secrets or secrets.toml")
         
         self.client = Groq(api_key=api_key)
         self.model = "llama-3.3-70b-versatile"

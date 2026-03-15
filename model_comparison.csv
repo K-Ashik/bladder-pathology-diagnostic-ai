@@ -1,0 +1,4 @@
+Model,Accuracy
+Logistic Regression,76.3%
+Random Forest,75.3%
+Gradient Boosting,75.3%

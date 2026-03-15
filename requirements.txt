@@ -1,0 +1,8 @@
+streamlit
+pandas
+numpy
+scikit-learn
+sentence-transformers
+groq
+plotly
+python-dotenv
